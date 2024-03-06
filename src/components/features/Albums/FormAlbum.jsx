@@ -1,104 +1,162 @@
 /* eslint-disable react/no-unescaped-entities */
-import { useRef } from "react";
-import { useDispatch } from "react-redux";
-import { addNewAlbum } from "./albumsSlice";
+import { useRef, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useSearchParams, useNavigate } from "react-router-dom";
+
+import { addNewAlbum, updateAlbum } from "./albumsSlice";
 
 
 function FormAlbum() {
 
     const dispatch = useDispatch();
+    const navigate = useNavigate();
+
+    // eslint-disable-next-line no-unused-vars
+    let [searchParams, setSearchParams] = useSearchParams();
+    const [radioValue, setRadioValue] = useState("1");
+
+
+    const mode = searchParams.get("mode") ?? "add";
+    console.log(mode);
+
+    const albumFound = useSelector(state => state.albums.albumSelected);
+
+    console.log(albumFound);
 
     const inputArtist = useRef();
     const inputTitle = useRef();
     const inputDate = useRef();
-    const inputScore = useRef();
     const inputCover = useRef();
-
 
     const handleSubmitForm = (e) => {
 
         e.preventDefault();
 
         const dateFr = inputDate.current.value.split("-").reverse().join("/");
+
+
         
         const newAlbum = {
             artist: inputArtist.current.value.trim(),
             title: inputTitle.current.value.trim(),
             releaseDate: dateFr,
-            score: inputScore.current.value,
+            score: radioValue,
             coverURL: inputCover.current.value.trim()
         }
 
-        dispatch(addNewAlbum(newAlbum));
+        if (mode === "add") {
+            dispatch(addNewAlbum(newAlbum));
+        } else {
+            newAlbum.id = albumFound.id;
+            dispatch(updateAlbum(newAlbum));
+        }
+        navigate("/");
 
         inputArtist.current.value = "";
         inputTitle.current.value = "";
         inputDate.current.value = "";
-        inputScore.current.value = "";
         inputCover.current.value = "";
     }
 
     return ( 
-        <form onSubmit={handleSubmitForm} className="mx-auto flex flex-col w-[500px] border border-gray-300 p-4 rounded-lg bg-gray-100">
+        <div>
+
+            <h3 className="text-3xl font-bold text-center my-6">
+                {mode === "update" ? "Modifier" : "Ajouter"} un album
+            </h3>
+            <form 
+                onSubmit={handleSubmitForm}
+                className="mx-auto flex flex-col w-[500px] border border-gray-300 p-4 rounded-lg bg-gray-100">
             <label className="mx-auto mb-4 flex flex-col w-[300px] leading-8 font-medium">
                 Artiste
-                <input ref={inputArtist} type="text" className="input input-bordered input-secondary input-sm w-full max-w-xs font-normal" />
+                <input 
+                    ref={inputArtist} 
+                    defaultValue={mode === "update" ? albumFound.artist : ""}
+                    type="text" 
+                    className="input input-bordered input-secondary input-sm w-full max-w-xs font-normal" 
+                />
             </label>
             <label className="mx-auto mb-4 flex flex-col w-[300px] leading-8 font-medium">
                 Titre de l'abum:
-                <input ref={inputTitle} type="text" className="input input-bordered input-secondary input-sm w-full max-w-xs font-normal"/>
+                <input 
+                    ref={inputTitle} 
+                    defaultValue={mode === "update" ? albumFound.title : ""}
+                    type="text" 
+                    className="input input-bordered input-secondary input-sm w-full max-w-xs font-normal"
+                />
             </label>
             <label className="mx-auto mb-4 flex flex-col w-[300px] leading-8 font-medium">
                 Date de sortie
-                <input ref={inputDate} type="date" className="input input-bordered input-secondary input-sm w-full max-w-xs font-normal"/>
+                <input 
+                    ref={inputDate} 
+                    defaultValue={mode === "update" ? albumFound.releaseDate : ""}
+                    type="date" 
+                    className="input input-bordered input-secondary input-sm w-full max-w-xs font-normal"
+                />
             </label>
 
             <label className="mx-auto mb-4 flex flex-col w-[300px] leading-8 font-medium">
                 Cover
-                <input ref={inputCover} type="url" className="input input-bordered input-secondary input-sm  w-full max-w-xs font-normal"/>
+                <input 
+                ref={inputCover} 
+                defaultValue={mode === "update" ? albumFound.coverURL : ""}
+                type="url" 
+                className="input input-bordered input-secondary input-sm  w-full max-w-xs font-normal"/>
             </label>
+
             <label className="rating mx-auto flex justify-evenly w-[300px] font-medium">
                 Note de l'album : 
                 <input
-                    className="mask mask-star-2 bg-green-500"
+                    className="mask mask-star-2 bg-accent"
                     type="radio"
-                    ref={inputScore}
+                    onChange={(e) => setRadioValue(e.target.value)}
+                    defaultChecked={mode === "update" ? albumFound.score === "1" : false}
                     name="score"
                     value="1"
                 />
                 <input
-                    className="mask mask-star-2 bg-green-500"
+                    className="mask mask-star-2 bg-accent"
                     type="radio"
-                    ref={inputScore}
+                    onChange={(e) => setRadioValue(e.target.value)}
+                    defaultChecked={mode === "update" ? albumFound.score === "2" : false}
                     name="score"
                     value="2"
                 />
                 <input
-                    className="mask mask-star-2 bg-green-500"
+                    className="mask mask-star-2 bg-accent"
                     type="radio"
-                    ref={inputScore}
+                    onChange={(e) => setRadioValue(e.target.value)}
+                    defaultChecked={mode === "update" ? albumFound.score === "3" : false}
                     name="score"
                     value="3"
                 />
                 <input
-                    className="mask mask-star-2 bg-green-500"
+                    className="mask mask-star-2 bg-accent"
                     type="radio"
-                    ref={inputScore}
+                    onChange={(e) => setRadioValue(e.target.value)}
+                    defaultChecked={mode === "update" ? albumFound.score === "4" : false}
                     name="score"
                     value="4"
                 />
                 <input
-                    className="mask mask-star-2 bg-green-500"
+                    className="mask mask-star-2 bg-accent"
                     type="radio"
-                    ref={inputScore}
+                    onChange={(e) => setRadioValue(e.target.value)}
+                    defaultChecked={mode === "update" ? albumFound.score === "5" : false}
                     name="score"
                     value="5"
                 />
             </label>
 
-            <button type="submit" className="btn btn-secondary mx-auto w-[300px] mt-4">Ajouter</button>
+            <button type="submit" className="btn btn-secondary mx-auto w-[300px] mt-4">
+                {mode === "update" ? "Modifier" : "Ajouter"}
+            </button>
 
         </form>
+
+
+        </div>
+        
 
 
      );

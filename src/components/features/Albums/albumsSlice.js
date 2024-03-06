@@ -2,6 +2,29 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { BASE_DB_URL } from "../../../firebaseConfig";
 import axios from "axios";
 
+export const fetchAlbums = createAsyncThunk(
+    "albums/fetchAlbums",
+    async () => {
+        try {
+            const response = await axios.get(`${BASE_DB_URL}/albums.json`);
+
+            const data = Object.keys(response.data).map((key) => {
+                return {
+                    id: key,
+                    ...response.data[key],
+                    releaseDate: response.data[key].releaseDate.split("/").reverse().join("-")
+                }
+            }
+            );
+
+            console.log(data);
+            return data;
+        } catch (error) {
+            return error;
+        }
+    }
+);
+
 export const addNewAlbum = createAsyncThunk(
     "albums/addNewAlbum",
     async (albumData) => {
@@ -14,6 +37,31 @@ export const addNewAlbum = createAsyncThunk(
     }
 );
 
+export const updateAlbum = createAsyncThunk(
+    "albums/updateAlbum",
+    async (albumData) => {
+        try {
+            const response = await axios.put(`${BASE_DB_URL}/albums/${albumData.id}.json`, albumData);
+            return response.data;
+        } catch (error) {
+            return error;
+        }
+    }
+);
+
+export const deleteAlbum = createAsyncThunk(
+    "albums/deleteAlbum",
+    async (albumId) => {
+        try {
+            const response = await axios.delete(`${BASE_DB_URL}/albums/${albumId}.json`);
+            return response.data;
+        } catch (error) {
+            return error;
+        }
+    }
+);
+
+
 const albumsSlice = createSlice({
     name: "albums",
     initialState: {
@@ -22,7 +70,11 @@ const albumsSlice = createSlice({
         error: null,
         albumSelected: null,
     },
-    reducers: {},
+    reducers: {
+        setSelectedAlbum: (state, action) => {
+            state.albumSelected = action.payload;
+        }
+    },
 
     extraReducers: (builder) => {
         builder.addCase(addNewAlbum.pending, (state) => {
@@ -36,7 +88,47 @@ const albumsSlice = createSlice({
             state.loading = false;
             state.error = action.payload;
         });
+
+
+        builder.addCase(fetchAlbums.pending, (state) => {
+            state.loading = true;
+        }),
+        builder.addCase(fetchAlbums.fulfilled, (state, action) => {
+            state.albums = action.payload;
+            state.loading = false;
+        }),
+        builder.addCase(fetchAlbums.rejected, (state, action) => {
+            state.loading = false;
+            state.error = action.payload;
+        });
+
+        builder.addCase(updateAlbum.pending, (state) => {
+            state.loading = true;
+        }),
+        builder.addCase(updateAlbum.fulfilled, (state, action) => {
+            const index = state.albums.findIndex(album => album.id === action.payload.id);
+            state.albums[index] = action.payload;
+            state.loading = false;
+        }),
+        builder.addCase(updateAlbum.rejected, (state, action) => {
+            state.loading = false;
+            state.error = action.payload;
+        });
+
+        builder.addCase(deleteAlbum.pending, (state) => {
+            state.loading = true;
+        }),
+        builder.addCase(deleteAlbum.fulfilled, (state, action) => {
+            state.albums = state.albums.filter(album => album.id !== action.payload);
+            state.loading = false;
+        }),
+        builder.addCase(deleteAlbum.rejected, (state, action) => {
+            state.loading = false;
+            state.error = action.payload;
+        });
     }
 });
+
+export const { setSelectedAlbum } = albumsSlice.actions;
 
 export default albumsSlice.reducer;
