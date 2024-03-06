@@ -16,7 +16,7 @@ function HomePage() {
     const [reload, setReload] = useState(false);
 
     const albums = useSelector(state => state.albums.albums);
-    console.log(albums);
+    const isLogin = useSelector(state => state.auth.isLogin);
 
     useEffect(()=> {
         dispatch(fetchAlbums());
@@ -36,7 +36,7 @@ function HomePage() {
     return ( 
     <div className="container mx-auto p-5">
         <h2 className="text-3xl font-bold text-center mb-6">Liste des albums</h2>
-        <div className="flex justify-center">
+        <div className="flex flex-wrap justify-center gap-6">
             {
                 albums && (
                     albums.map((album) => (
@@ -60,16 +60,18 @@ function HomePage() {
                                 {generateStars(album.score)}
                                 </div>
 
-                                <div className="card-actions justify-between flex-grow">
+                                <div className="card-actions justify-between mt-3 flex-grow">
                                     <button
                                         className="btn btn-primary btn-sm"
                                         onClick={() => handleModifyAlbum(album.id)}
+                                        disabled={!isLogin}
                                     >
                                         Modifier
                                     </button>
                                     <button 
                                         className="btn btn-secondary btn-sm"
                                         onClick={() => handleDeleteAlbum(album.id)}
+                                        disabled={!isLogin}
                                     >
                                         Supprimer
                                     </button>

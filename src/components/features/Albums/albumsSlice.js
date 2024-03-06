@@ -2,22 +2,20 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { BASE_DB_URL } from "../../../firebaseConfig";
 import axios from "axios";
 
+const token = localStorage.getItem("token");
+
 export const fetchAlbums = createAsyncThunk(
     "albums/fetchAlbums",
     async () => {
         try {
-            const response = await axios.get(`${BASE_DB_URL}/albums.json`);
-
+            const response = await axios.get(`${BASE_DB_URL}/albums.json?auth=${token}`);
             const data = Object.keys(response.data).map((key) => {
                 return {
                     id: key,
                     ...response.data[key],
                     releaseDate: response.data[key].releaseDate.split("/").reverse().join("-")
                 }
-            }
-            );
-
-            console.log(data);
+            });
             return data;
         } catch (error) {
             return error;
@@ -29,7 +27,7 @@ export const addNewAlbum = createAsyncThunk(
     "albums/addNewAlbum",
     async (albumData) => {
         try {
-            const response = await axios.post(`${BASE_DB_URL}/albums.json`, albumData);
+            const response = await axios.post(`${BASE_DB_URL}/albums.json?auth=${token}`, albumData);
             return response.data;
         } catch (error) {
             return error;
@@ -41,7 +39,7 @@ export const updateAlbum = createAsyncThunk(
     "albums/updateAlbum",
     async (albumData) => {
         try {
-            const response = await axios.put(`${BASE_DB_URL}/albums/${albumData.id}.json`, albumData);
+            const response = await axios.put(`${BASE_DB_URL}/albums/${albumData.id}.json?auth=${token}`, albumData);
             return response.data;
         } catch (error) {
             return error;
@@ -53,7 +51,7 @@ export const deleteAlbum = createAsyncThunk(
     "albums/deleteAlbum",
     async (albumId) => {
         try {
-            const response = await axios.delete(`${BASE_DB_URL}/albums/${albumId}.json`);
+            const response = await axios.delete(`${BASE_DB_URL}/albums/${albumId}.json?auth=${token}`);
             return response.data;
         } catch (error) {
             return error;
