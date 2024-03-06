@@ -1,4 +1,4 @@
-
+import HomePage from "./components/HomePage"
 
 function App() {
 
@@ -9,7 +9,9 @@ function App() {
 
       </header>
       <main>
-        
+
+        <HomePage />
+
       </main>
 
       <footer>
