@@ -5,7 +5,6 @@ import { useSearchParams, useNavigate } from "react-router-dom";
 
 import { addNewAlbum, updateAlbum } from "./albumsSlice";
 
-
 function FormAlbum() {
 
     const dispatch = useDispatch();
@@ -30,20 +29,29 @@ function FormAlbum() {
         e.preventDefault();
 
         const dateFr = inputDate.current.value.split("-").reverse().join("/");
-        
-        const newAlbum = {
-            artist: inputArtist.current.value.trim(),
-            title: inputTitle.current.value.trim(),
-            releaseDate: dateFr,
-            score: radioValue,
-            coverURL: inputCover.current.value.trim()
-        }
 
         if (mode === "add") {
+
+            const newAlbum = {
+                artist: inputArtist.current.value.trim(),
+                title: inputTitle.current.value.trim(),
+                releaseDate: dateFr,
+                score: radioValue,
+                coverURL: inputCover.current.value.trim()
+            }
+
             dispatch(addNewAlbum(newAlbum));
+
         } else {
-            newAlbum.id = albumFound.id;
-            dispatch(updateAlbum(newAlbum));
+            const updatedAlbum = {
+                id: albumFound.id,
+                artist: inputArtist.current.value.trim(),
+                title: inputTitle.current.value.trim(),
+                releaseDate: dateFr,
+                score: radioValue === null ? albumFound.score : radioValue,
+                coverURL: inputCover.current.value.trim()
+            }
+            dispatch(updateAlbum(updatedAlbum));
         }
 
         navigate("/");
