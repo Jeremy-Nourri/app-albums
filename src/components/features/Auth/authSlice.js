@@ -47,10 +47,14 @@ const authSlice = createSlice({
 
     extraReducers: (builder) => {
         builder.addCase(signIn.fulfilled, (state, action) => {
-            state.user = action.payload;
-            state.isLogin = true;
-            state.modalIsOpen = false;
-            state.message = "Connexion réussie";
+            if (action.payload.error) {
+                state.error = action.payload.error.message;
+                state.message = "Connexion échouée";
+            } else {
+                state.user = action.payload;
+                state.isLogin = true;
+                state.message = "Connexion réussie";
+            }
         });
         builder.addCase(signIn.rejected, (state, action) => {
             state.error = action.payload;

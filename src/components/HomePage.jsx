@@ -1,7 +1,7 @@
-import  { useEffect, useState } from "react";
+import  { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { deleteAlbum, setSelectedAlbum } from "./features/Albums/albumsSlice";
+import { deleteAlbum, setSelectedAlbum, sortAlbums } from "./features/Albums/albumsSlice";
 
 import { generateStars } from "./utils/generateStars";
 
@@ -13,18 +13,16 @@ function HomePage() {
     const navigate = useNavigate();
     const dispatch = useDispatch();
 
-    const [reload, setReload] = useState(false);
-
     const albums = useSelector(state => state.albums.albums);
+    const reload = useSelector(state => state.albums.reload);
     const isLogin = useSelector(state => state.auth.isLogin);
 
     useEffect(()=> {
         dispatch(fetchAlbums());
-    }, [dispatch, reload]);
+    }, [reload, dispatch]);
 
     const handleDeleteAlbum = (id) => {
         dispatch(deleteAlbum(id));
-        setReload(!reload);
     }
 
     const handleModifyAlbum = (albumId) => {
@@ -36,6 +34,15 @@ function HomePage() {
     return ( 
     <div className="container mx-auto p-5">
         <h2 className="text-3xl font-bold text-center mb-6">Liste des albums</h2>
+        <div className="flex justify-center gap-4">
+            <select 
+                className="select select-bordered" 
+                onChange={(e) => dispatch(sortAlbums(e.target.value))}
+            >
+                <option value="title">Trier par titre</option>
+                <option value="score">Trier par note</option>
+            </select>
+        </div>
         <div className="flex flex-wrap justify-center gap-6">
             {
                 albums && (

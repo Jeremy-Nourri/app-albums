@@ -8,7 +8,6 @@ import { closeModal, signIn,  } from './authSlice';
 function ModalFormAuth() {
 
     const isOpen = useSelector(state => state.auth.modalIsOpen);
-    const isLogin = useSelector(state => state.auth.isLogin);
     const dispatch = useDispatch();
 
     const inputEmail = useRef();

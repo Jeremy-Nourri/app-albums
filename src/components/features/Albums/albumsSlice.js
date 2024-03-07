@@ -8,7 +8,7 @@ export const fetchAlbums = createAsyncThunk(
     "albums/fetchAlbums",
     async () => {
         try {
-            const response = await axios.get(`${BASE_DB_URL}/albums.json?auth=${token}`);
+            const response = await axios.get(`${BASE_DB_URL}/albums.json`);
             const data = Object.keys(response.data).map((key) => {
                 return {
                     id: key,
@@ -59,7 +59,6 @@ export const deleteAlbum = createAsyncThunk(
     }
 );
 
-
 const albumsSlice = createSlice({
     name: "albums",
     initialState: {
@@ -67,10 +66,18 @@ const albumsSlice = createSlice({
         loading: false,
         error: null,
         albumSelected: null,
+        reload: false
     },
     reducers: {
         setSelectedAlbum: (state, action) => {
             state.albumSelected = action.payload;
+        },
+        sortAlbums: (state, action) => {
+            if (action.payload === "score") {
+                state.albums.sort((a, b) => b.score - a.score);
+            } else {
+                state.albums.sort((a, b) => a.title.localeCompare(b.title));
+            }
         }
     },
 
@@ -86,7 +93,6 @@ const albumsSlice = createSlice({
             state.loading = false;
             state.error = action.payload;
         });
-
 
         builder.addCase(fetchAlbums.pending, (state) => {
             state.loading = true;
@@ -117,6 +123,7 @@ const albumsSlice = createSlice({
             state.loading = true;
         }),
         builder.addCase(deleteAlbum.fulfilled, (state, action) => {
+            state.reload = !state.reload;
             state.albums = state.albums.filter(album => album.id !== action.payload);
             state.loading = false;
         }),
@@ -124,9 +131,10 @@ const albumsSlice = createSlice({
             state.loading = false;
             state.error = action.payload;
         });
+
     }
 });
 
-export const { setSelectedAlbum } = albumsSlice.actions;
+export const { setSelectedAlbum, sortAlbums, setReload } = albumsSlice.actions;
 
 export default albumsSlice.reducer;

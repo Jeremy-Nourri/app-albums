@@ -17,7 +17,7 @@ function FormAlbum() {
 
     const albumFound = useSelector(state => state.albums.albumSelected);
 
-    const [radioValue, setRadioValue] = useState(albumFound.score);
+    const [radioValue, setRadioValue] = useState(null);
     console.log(albumFound);
 
     const inputArtist = useRef();
@@ -45,6 +45,7 @@ function FormAlbum() {
             newAlbum.id = albumFound.id;
             dispatch(updateAlbum(newAlbum));
         }
+
         navigate("/");
 
         inputArtist.current.value = "";
